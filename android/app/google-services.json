@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "905091455864",
+    "project_id": "lafda-fa2ec",
+    "storage_bucket": "lafda-fa2ec.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:905091455864:android:5b4cc43a50fe18775c068d",
+        "android_client_info": {
+          "package_name": "com.example.lafda"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNZKIAAIk3JGWgLUn20ox_CxbSThDL5GY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
