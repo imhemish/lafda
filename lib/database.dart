@@ -40,6 +40,7 @@ class DatabaseService {
       "rooms": <String>[],
       "anonName": anonName,
       "comments": [],
+      "paused": false,
       "image": "",
       "realName": "",
       "verified": false
@@ -58,7 +59,8 @@ class DatabaseService {
   Future<void> createRoom(String roomID, String name) async {
     await roomsCollection.doc(roomID).set({
       "name": name,
-      "messages": <Map<String, dynamic>>[]
+      "messages": <Map<String, dynamic>>[],
+      "paused": false,
     });
     joinRoom(roomID);
   }

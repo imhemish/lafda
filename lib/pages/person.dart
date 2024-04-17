@@ -16,7 +16,7 @@ Widget getCommentsBody(Stream<DocumentSnapshot>? stream, String userID) {
         Chat(messages: getCommentsAsTypes(asyncAnapshot.data!),
         
         
-        theme: DefaultChatTheme(backgroundColor: Theme.of(context).brightness != Brightness.dark ? Colors.white : Colors.black),
+        theme: DefaultChatTheme(backgroundColor: Theme.of(context).brightness != Brightness.dark ? Colors.white : Colors.black, userNameTextStyle: TextStyle(color: Theme.of(context).brightness != Brightness.dark ? Colors.black : Colors.white)),
         nameBuilder: (p0) => Text(p0.firstName ?? ""),
         showUserNames: true,
         inputOptions: const InputOptions(sendButtonVisibilityMode: SendButtonVisibilityMode.always),

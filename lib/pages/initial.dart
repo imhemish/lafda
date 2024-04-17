@@ -14,6 +14,7 @@ class InitialController extends GetxController {
       if (uid != null) {
         db.createChatUser(uid, name).then((value) => Get.offNamed("/main"));
         PrefUtil.setValue("anonName", name);
+      } else {
         Get.snackbar("Error", "Could not connect to database");
       }
     });
