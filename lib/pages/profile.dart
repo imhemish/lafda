@@ -1,4 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:lafda/database.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -6,128 +11,126 @@ class ProfilePage extends StatefulWidget {
 }
 
 class ProfilePageState extends State<ProfilePage> {
-  final List<TextEditingController> _controllers = List.generate(4, (index) => TextEditingController());
-
-  @override
-  void dispose() {
-    for (var controller in _controllers) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
+  final _nameController = TextEditingController();
+  final _contactController = TextEditingController();
+  var loading = false;
+  String? imageURL;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        title: Text('Apply for verification'),
       ),
       body: ListView(
         children: <Widget>[
-          SizedBox(height: 20), 
           Center(
-            child: CircleAvatar(
-              radius: 50,
-              //backgroundImage: AssetImage('assets/avatar.jpg'),
-            ),
-          ),
-          SizedBox(height: 20), 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: FractionallySizedBox(
-              widthFactor: 0.5,
-              child: TextField(
-                controller: _controllers[0],
-                decoration: InputDecoration(
-                  labelText: 'Name',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 1,
-              ),
-            ),
-          ),
-          SizedBox(height: 20), 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: FractionallySizedBox(
-              widthFactor: 0.2,
-              child: ElevatedButton(
-                onPressed: () {
-                 
-                },
-                child: Text('Save'),
-              ),
-            ),
-          ),
-          SizedBox(height: 20), 
-          CustomPaint(
-            size: Size(MediaQuery.of(context).size.width, 2),
-            painter: DiagonalPainter(),
-          ),
-          SizedBox(height: 20), 
-          Center(
-            child: Text(
-              'Real Identity Card',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            child: InkWell(
+              onTap: () {
+                () async {
+                  var image = await ImagePicker().pickImage(source: ImageSource.gallery);
+                  if (image != null) {
+                    var data = await image.readAsBytes();
+                    var url = await DatabaseService().uploadImageToFirebase(data);
+                    setState(() {
+                      imageURL = url;
+                    });
+                    } else {
+                      Get.snackbar("Error", "Could not pick image");
+                      Get.back();
+                    }
+                } ();
+              },
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: (imageURL != null) ? NetworkImage(imageURL!) : null,
+                //backgroundImage: AssetImage('assets/avatar.jpg'),
               ),
             ),
           ),
           SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: FractionallySizedBox(
-              widthFactor: 0.3, 
-              child: ElevatedButton(
-                onPressed: () {
-                 
-                },
-                child: Text('Upload Photo'),
-              ),
-            ),
-          ),
-          SizedBox(height: 20), 
           Column(
             children: [
-              for (int i = 0; i < 4; i++)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      FractionallySizedBox(
-                        widthFactor: 0.5,
-                        child: TextField(
-                          controller: _controllers[i],
-                          decoration: InputDecoration(
-                            labelText: _getFieldLabel(i),
-                            border: OutlineInputBorder(),
-                          ),
-                          maxLines: 1,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                    ],
-                  ),
-                ),
-              SizedBox(height: 20), 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: FractionallySizedBox(
-                  widthFactor: 0.2,
-                  child: ElevatedButton(
-                    onPressed: () {
-                     
-                    },
-                    child: Text('Save'),
-                  ),
+                child: Column(
+                  children: [
+                    FractionallySizedBox(
+                      widthFactor: 0.5,
+                      child: TextField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          labelText: "Name",
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 1,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                  ],
                 ),
               ),
-               SizedBox(height: 20), 
+              SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    FractionallySizedBox(
+                      widthFactor: 0.5,
+                      child: TextField(
+                        controller: _contactController,
+                        decoration: InputDecoration(
+                          labelText: "Contact Number",
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 1,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: loading
+                    ? CircularProgressIndicator.adaptive()
+                    : FractionallySizedBox(
+                        widthFactor: 0.2,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (imageURL != null && _nameController.text.isNotEmpty && _contactController.text.length == 10) {
+                            setState(() {
+                              loading = true;
+                            });
+                            FirebaseFirestore.instance
+                                .collection("verification")
+                                .doc()
+                                .set({
+                              "name": _nameController.text,
+                              "contact": _contactController.text,
+                              "image": imageURL,
+                              "userID": FirebaseAuth.instance.currentUser!.uid
+                            }).then((_) {
+                              Get.snackbar("Success",
+                                  "Verification request has been made");
+                              setState(() {
+                                loading = false;
+                              });
+                              Get.back();
+                            });
+                            } else {
+                              Get.snackbar("Not sent", "Ensure that photo has been uploaded, name is not empty and Contact number is 10 digit");
+                            }
+                          },
+                          child: Text('Apply'),
+                        ),
+                      ),
+              ),
+              SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
-                  '*You can only upload your photo and real ID card. It will not affect your identity on app and you can still chat anonymously.',
+                  'You can upload your photo for verification to list you on the People section of our app. We will contact you to confirm if you applied, shortly. Getting verified here and uploading your photo will not affect your identity and will not show the photo to others on app and you can still chat anonymously with your anonymous name.',
                   style: TextStyle(fontSize: 16),
                 ),
               ),
@@ -136,42 +139,5 @@ class ProfilePageState extends State<ProfilePage> {
         ],
       ),
     );
-  }
-
-  String _getFieldLabel(int index) {
-    switch (index) {
-      case 0:
-        return 'Name';
-      case 1:
-        return 'About';
-      case 2:
-        return 'Bio';
-      case 3:
-        return 'Contact';
-      default:
-        return '';
-    }
-  }
-}
-
-class DiagonalPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()
-      ..color = Colors.black.withOpacity(0.3)
-      ..strokeWidth = 2.0
-      ..strokeCap = StrokeCap.round;
-
-    const double startX = 0;
-    const double startY = 0;
-    final double endX = size.width;
-    final double endY = size.height;
-
-    canvas.drawLine(Offset(startX, startY), Offset(endX, endY), paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
   }
 }

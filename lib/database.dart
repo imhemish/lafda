@@ -1,9 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:lafda/pref_util.dart';
 import 'package:uuid/uuid.dart';
 import './banned_words.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class Person {
   final String name;
@@ -135,6 +138,20 @@ class DatabaseService {
     await usersCollection.doc(userid).update({
       "comments": <dynamic>[{"id": (const Uuid()).v4(), "message": comment, "sender": FirebaseAuth.instance.currentUser!.uid, "senderName": PrefUtil.getValue("anonName", "Anonymous"), "timestamp": Timestamp.now()},] + currentComments
     });
+  }
+
+  Future<String?> uploadImageToFirebase(Uint8List data) async {
+    Reference storageReference =
+        FirebaseStorage.instance.ref().child('images/${DateTime.now()}.png');
+
+    UploadTask uploadTask = storageReference.putData(data);
+    TaskSnapshot snapshot = await uploadTask;
+
+    if (snapshot.state == TaskState.success) {
+      final String downloadURL = await snapshot.ref.getDownloadURL();
+      return downloadURL;
+    }
+    return null;
   }
 
 }

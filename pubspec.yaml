@@ -44,6 +44,9 @@ dependencies:
   flutter_chat_ui: ^1.6.12
   flutter_chat_types: ^3.6.2
   shared_preferences: ^2.2.3
+  firebase_storage: ^11.7.2
+  image_picker: ^1.1.0
+  http: ^1.2.1
 
 dev_dependencies:
   flutter_test:

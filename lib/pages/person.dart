@@ -14,10 +14,18 @@ Widget getCommentsBody(Stream<DocumentSnapshot>? stream, String userID) {
       if (asyncAnapshot.hasData) {
         return 
         Chat(messages: getCommentsAsTypes(asyncAnapshot.data!),
+
         
+        customStatusBuilder: (message, {required context}) {
+          if (message.author.id == userID) {
+            return Icon(Icons.verified);
+          } else {
+            return SizedBox(height: 0.1);
+          }
+        },
         
-        theme: DefaultChatTheme(backgroundColor: Theme.of(context).brightness != Brightness.dark ? Colors.white : Colors.black, userNameTextStyle: TextStyle(color: Theme.of(context).brightness != Brightness.dark ? Colors.black : Colors.white)),
-        nameBuilder: (p0) => Text(p0.firstName ?? ""),
+        theme: DefaultChatTheme(backgroundColor: Theme.of(context).brightness != Brightness.dark ? Colors.white : Colors.black, userNameTextStyle: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
+        
         showUserNames: true,
         inputOptions: const InputOptions(sendButtonVisibilityMode: SendButtonVisibilityMode.always),
         onSendPressed: (text) => db.addComment(userID, text.text),

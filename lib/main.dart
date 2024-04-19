@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
@@ -10,6 +9,7 @@ import 'package:lafda/pages/initial.dart';
 import 'package:lafda/pages/people.dart';
 import 'package:lafda/pages/profile.dart';
 import 'package:get/get.dart';
+import 'package:lafda/pages/versioning.dart';
 import 'package:lafda/pref_util.dart';
 
 void main() async {
@@ -30,20 +30,16 @@ class MyApp extends StatelessWidget {
           GetPage(name: "/initial", page: () => InitialPage()),
           GetPage(name: "/main", page: () => MainPage()),
           GetPage(name: "/contact", page: () => ContactUsPage()),
-          GetPage(name: "/profile", page: () => ProfilePage())
+          GetPage(name: "/profile", page: () => ProfilePage()),
+          GetPage(name: "/versioning", page: () => Versioning())
         ],
         debugShowCheckedModeBanner: false,
         title: 'Lafda',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          
-          useMaterial3: true,
-          textTheme: const TextTheme(bodyMedium: TextStyle(fontSize: 17))
-        ),
+        
         darkTheme: ThemeData(
           brightness: Brightness.dark
         ),
-        initialRoute: FirebaseAuth.instance.currentUser != null ? "/main" : "/initial",);
+        initialRoute: "/versioning");
   }
 }
 
