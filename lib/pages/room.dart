@@ -25,8 +25,8 @@ Widget getRoomBody(Stream<DocumentSnapshot>? stream, String roomID) {
         return 
         Chat(messages: getMessagesAsTypes(asyncAnapshot.data!),
         
-        theme: DefaultChatTheme(backgroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,),
-        nameBuilder: (p0) => Text(p0.firstName ?? ""),
+        theme: DefaultChatTheme(backgroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.black : neutral2, userNameTextStyle: TextStyle(fontSize: 16)),
+        
         showUserNames: true,
         inputOptions: const InputOptions(sendButtonVisibilityMode: SendButtonVisibilityMode.always),
         onSendPressed: (text) => db.sendMessage(roomID, text.text),

@@ -12,6 +12,7 @@ class InitialController extends GetxController {
     FirebaseAuth.instance.signInAnonymously().then((credential) {
       var uid = credential.user?.uid;
       if (uid != null) {
+        FirebaseAuth.instance.currentUser?.updateDisplayName(name);
         db.createChatUser(uid, name).then((value) => Get.offNamed("/main"));
         PrefUtil.setValue("anonName", name);
       } else {

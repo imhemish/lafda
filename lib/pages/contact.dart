@@ -1,16 +1,26 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-class ContactUsPage extends StatelessWidget {
+import 'package:get/get.dart';
+
+class ContactUsPage extends StatefulWidget {
+  @override
+  State<ContactUsPage> createState() => _ContactUsPageState();
+}
+
+class _ContactUsPageState extends State<ContactUsPage> {
+
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _numberController = TextEditingController();
+  final _messageController = TextEditingController();
+
+  var loading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Contact Us'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -38,7 +48,7 @@ class ContactUsPage extends StatelessWidget {
                           children: <Widget>[
                             CircleAvatar(
                               radius: 50,
-                              backgroundImage: AssetImage('assets/avatar1.jpg'), // Replace with actual image path
+                              backgroundImage: NetworkImage("https://sanju-vashist.github.io/lafda/image/hemish.jpg"),
                             ),
                             SizedBox(height: 10.0),
                             Text(
@@ -68,7 +78,7 @@ class ContactUsPage extends StatelessWidget {
                           children: <Widget>[
                             CircleAvatar(
                               radius: 50,
-                              backgroundImage: AssetImage('assets/avatar2.jpg'), // Replace with actual image path
+                              backgroundImage: NetworkImage("https://sanju-vashist.github.io/lafda/image/sanju.jpg"),
                             ),
                             SizedBox(height: 10.0),
                             Text(
@@ -80,7 +90,7 @@ class ContactUsPage extends StatelessWidget {
                             ),
                             SizedBox(height: 10.0),
                             Text(
-                              'Created app design, website, implemented Contact Page UI and Profile Page UI',
+                              'Created app design, website, implemented Contact Page UI and Profile Page UI, deals with users, promotor',
                               style: TextStyle(color: Colors.grey),
                             ),
                           ],
@@ -100,32 +110,39 @@ class ContactUsPage extends StatelessWidget {
               ),
               SizedBox(height: 20.0),
               Form(
+                key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     TextFormField(
+                      controller: _nameController,
                       decoration: InputDecoration(
                         labelText: 'Name',
                         border: OutlineInputBorder(),
                       ),
                     ),
+                    
                     SizedBox(height: 10.0),
                     TextFormField(
+                      controller: _numberController,
                       decoration: InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    SizedBox(height: 10.0),
-                    TextFormField(
-                      decoration: InputDecoration(
+                        
                         labelText: 'Phone Number',
                         border: OutlineInputBorder(),
                       ),
+                      validator: (value) {
+                        if (value?.length != 10) {
+                          return "Enter 10 digit number";
+                        } else {
+                          return null;
+                        }
+                      },
                     ),
                     SizedBox(height: 10.0),
                     TextFormField(
+                      controller: _messageController,
                       decoration: InputDecoration(
+                      
                         labelText: 'Message',
                         border: OutlineInputBorder(),
                       ),
@@ -134,9 +151,21 @@ class ContactUsPage extends StatelessWidget {
                     SizedBox(height: 20.0),
                     FractionallySizedBox(
                       widthFactor: 0.8,
-                      child: ElevatedButton(
+                      child: loading ? CircularProgressIndicator.adaptive() : ElevatedButton(
                         onPressed: () {
-                          // Handle form submission
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              loading = true;
+                            });
+                            FirebaseFirestore.instance.collection("contact").doc().set({
+                              "name": _nameController.text,
+                              "number": _numberController.text,
+                              "message": _messageController.text
+                            }).then((value) => setState(() {
+                              loading = false;
+                              Get.snackbar("Sent", "Your message was sent successfully");
+                            }));
+                          }
                         },
                         style: ButtonStyle(
                           padding: MaterialStateProperty.all<EdgeInsets>(

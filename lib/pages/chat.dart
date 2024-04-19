@@ -9,7 +9,7 @@ var db = DatabaseService();
 Widget renderRooms(Map<String, String>? rooms, ScrollController scrollController) {
   if (rooms != null) {
     var entries = (rooms).entries.toList();
-    return ListView.separated(itemCount: rooms.length, itemBuilder: (context, index) => ListTile(title: Text((entries[index]).value), onTap: () => Get.to(RoomPage((entries[index]).key, entries[index].value)),), separatorBuilder: (context, index) => const Divider(),);
+    return ListView.separated(itemCount: rooms.length, itemBuilder: (context, index) => ListTile(title: Text((entries[index]).value), subtitle: Text(entries[index].key), onTap: () => Get.to(RoomPage((entries[index]).key, entries[index].value)),), separatorBuilder: (context, index) => const Divider(),);
   }
   else {
     // Somehow i had to use both Center and Align to centrally align it on Web
