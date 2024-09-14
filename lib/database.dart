@@ -70,7 +70,7 @@ class DatabaseService {
 
   Future<void> sendMessage(String roomID, String message) async {
     for (var word in bannedWords) {
-      if (message.contains(word)) {
+      if (message.toLowerCase().contains(word)) {
         Get.snackbar("Error", "This language is not allowed");
         return;
       }
@@ -124,7 +124,7 @@ class DatabaseService {
 
   Future<void> addComment(String userid, String comment) async {
     for (var word in bannedWords) {
-      if (comment.contains(word)) {
+      if (comment.toLowerCase().contains(word)) {
         Get.snackbar("Error", "This language is not allowed");
         return;
       }

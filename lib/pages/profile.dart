@@ -28,22 +28,25 @@ class ProfilePageState extends State<ProfilePage> {
             child: InkWell(
               onTap: () {
                 () async {
-                  var image = await ImagePicker().pickImage(source: ImageSource.gallery);
+                  var image = await ImagePicker()
+                      .pickImage(source: ImageSource.gallery);
                   if (image != null) {
                     var data = await image.readAsBytes();
-                    var url = await DatabaseService().uploadImageToFirebase(data);
+                    var url =
+                        await DatabaseService().uploadImageToFirebase(data);
                     setState(() {
                       imageURL = url;
                     });
-                    } else {
-                      Get.snackbar("Error", "Could not pick image");
-                      Get.back();
-                    }
-                } ();
+                  } else {
+                    Get.snackbar("Error", "Could not pick image");
+                    Get.back();
+                  }
+                }();
               },
               child: CircleAvatar(
                 radius: 50,
-                backgroundImage: (imageURL != null) ? NetworkImage(imageURL!) : null,
+                backgroundImage:
+                    (imageURL != null) ? NetworkImage(imageURL!) : null,
                 //backgroundImage: AssetImage('assets/avatar.jpg'),
               ),
             ),
@@ -95,31 +98,37 @@ class ProfilePageState extends State<ProfilePage> {
                 child: loading
                     ? CircularProgressIndicator.adaptive()
                     : FractionallySizedBox(
-                        widthFactor: 0.2,
+                        widthFactor: 0.3,
                         child: ElevatedButton(
                           onPressed: () {
-                            if (imageURL != null && _nameController.text.isNotEmpty && _contactController.text.length == 10) {
-                            setState(() {
-                              loading = true;
-                            });
-                            FirebaseFirestore.instance
-                                .collection("verification")
-                                .doc()
-                                .set({
-                              "name": _nameController.text,
-                              "contact": _contactController.text,
-                              "image": imageURL,
-                              "userID": FirebaseAuth.instance.currentUser!.uid
-                            }).then((_) {
-                              Get.snackbar("Success",
-                                  "Verification request has been made");
+                            if (imageURL != null &&
+                                _nameController.text.isNotEmpty &&
+                                _contactController.text.length == 10) {
                               setState(() {
-                                loading = false;
+                                loading = true;
                               });
-                              Get.back();
-                            });
+                              FirebaseFirestore.instance
+                                  .collection("users")
+                                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                                  .update({
+                                "realName": _nameController.text,
+                                "image": imageURL,
+                              }).then((_) {
+                                FirebaseFirestore.instance
+                                    .collection("verification")
+                                    .doc(FirebaseAuth.instance.currentUser!.uid)
+                                    .set({"contact": _contactController.text});
+                              }).then((value) {
+                                setState(() {
+                                  loading = false;
+                                });
+                                Get.back();
+                                Get.snackbar("Success",
+                                    "Verification request has been made");
+                              });
                             } else {
-                              Get.snackbar("Not sent", "Ensure that photo has been uploaded, name is not empty and Contact number is 10 digit");
+                              Get.snackbar("Not sent",
+                                  "Ensure that photo has been uploaded, name is not empty and Contact number is 10 digit");
                             }
                           },
                           child: Text('Apply'),
